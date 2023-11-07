@@ -3,9 +3,12 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import GUI from 'lil-gui'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
-import { RGBELoader} from 'three/examples/jsm/loaders/RGBELoader'
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-
+/**
+ * Declarations
+ */
 
 /**
  * Base
@@ -24,30 +27,55 @@ const axesHelper = new THREE.AxesHelper()
 // scene.add(axesHelper)
 
 /**
- * Environment map
- */
-const rbgeLoader = new RGBELoader()
-rbgeLoader.load('/textures/environmentMap/2k.hdr', (environmentMap) => {
-    environmentMap.mapping = THREE.EquirectangularReflectionMapping
-
-    scene.background = environmentMap
-    scene.environment = environmentMap
-})
-
-/**
  * Textures
  */
 const textureLoader = new THREE.TextureLoader()
 const matcapTexture1 = textureLoader.load('/textures/matcaps/1.png')
+matcapTexture1.colorSpace = THREE.SRGBColorSpace
+matcapTexture1.generateMipmaps = false
+matcapTexture1.minFilter = THREE.NearestFilter
+matcapTexture1.magFilter = THREE.NearestFilter
+
 const matcapTexture2 = textureLoader.load('/textures/matcaps/2.png')
 const matcapTexture3 = textureLoader.load('/textures/matcaps/3.png')
-matcapTexture1.colorSpace = THREE.SRGBColorSpace
+const matcapTexture4 = textureLoader.load('/textures/matcaps/4.png')
+const matcapTexture5 = textureLoader.load('/textures/matcaps/5.png')
+const matcapTexture6 = textureLoader.load('/textures/matcaps/6.png')
+const matcapTexture7 = textureLoader.load('/textures/matcaps/7.png')
+const matcapTexture8 = textureLoader.load('/textures/matcaps/8.png')
 
+/* var gltfLoader = new GLTFLoader()
+gltfLoader.load('/gltf/car.glb', function (gltf) {
+	tank = gltf.scene 
+	tank.scale.set(2, 2, 2)
+	tank.position.y = -4
+	scene.add(tank)
+},
+function ( xhr ) {
+
+	console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+},
+// called when loading has errors
+function ( error ) {
+
+	console.log( 'An error happened' );
+
+})
+ */
+
+// Environment map
+const rbgeLoader = new RGBELoader()
+rbgeLoader.load('/textures/environmentMap/2k.hdr', (environmentMap) => {
+	environmentMap.mapping = THREE.EquirectangularReflectionMapping
+
+	scene.background = environmentMap
+	scene.environment = environmentMap
+})
 
 /**
  * Object
  */
-
 
 const cube = new THREE.Mesh(
 	new THREE.BoxGeometry(1, 1, 1),
@@ -56,29 +84,31 @@ const cube = new THREE.Mesh(
 cube.position.y = -1
 // scene.add(cube)
 
-
-const video = document.getElementById( 'video' );
-video.play();
+const video = document.getElementById('video')
+setTimeout(() => video.play, 1000)
 let videoTexture = new THREE.VideoTexture(video)
-videoTexture.colorSpace = THREE.SRGBColorSpace;
+videoTexture.colorSpace = THREE.SRGBColorSpace
 
-const parameters = { color: 0xffffff, map: videoTexture, side: THREE.DoubleSide };
-const videoMaterial = new THREE.MeshBasicMaterial(parameters);
+const parameters = {
+	color: 0xffffff,
+	map: videoTexture,
+	side: THREE.DoubleSide,
+}
+const videoMaterial = new THREE.MeshBasicMaterial(parameters)
 const videoGeometry = new THREE.BoxGeometry(2, 1, 2)
 
 const videoMesh = new THREE.Mesh(videoGeometry, videoMaterial)
-videoMesh.position.y = 1.3
+videoMesh.position.y = -1
 scene.add(videoMesh)
-
 
 /**
  * Fonts
  */
 const fontLoader = new FontLoader()
 fontLoader.load('/fonts/helvetiker_regular.typeface.json', (font) => {
-	const textGeometry = new TextGeometry('Epic Clan', {
+	const EpicClanTextGeometry = new TextGeometry('Epic Clan', {
 		font: font,
-		size: 0.5,
+		size: 0.9,
 		height: 0.2,
 		curvesSegments: 5,
 		bevelEnabled: true,
@@ -88,40 +118,44 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', (font) => {
 		bevelSegments: 4,
 	})
 	// Make the box bounding for optimizing rendering
-	textGeometry.computeBoundingBox()
-	textGeometry.center()
-	console.log(textGeometry.boundingBox)
-    const textMaterial = new THREE.MeshMatcapMaterial()
-    textMaterial.matcap = matcapTexture1
-	// textMaterial.wireframe = true
-	const textMesh = new THREE.Mesh(textGeometry, textMaterial)
-	scene.add(textMesh)
+	EpicClanTextGeometry.computeBoundingBox()
+	EpicClanTextGeometry.center()
+	console.log(EpicClanTextGeometry.boundingBox)
+	const EpicClanTextMaterial = new THREE.MeshMatcapMaterial()
+	EpicClanTextMaterial.matcap = matcapTexture7
+	// EpicClanTextMaterial.wireframe = true
+	const EpicClanMesh = new THREE.Mesh(
+		EpicClanTextGeometry,
+		EpicClanTextMaterial
+	)
+	EpicClanMesh.position.y = 1
+	scene.add(EpicClanMesh)
 })
-
 
 // Donut
 
-console.time('donuts');
-
-const donutGeometry = new THREE.TorusGeometry(0.3, 0.2, 20, 45)
-const donutMaterial = new THREE.MeshMatcapMaterial({ matcap: matcapTexture1 })
+const ringGeometry = new THREE.RingGeometry(0.6, 0.8, 16)
+const ringMaterial = new THREE.MeshBasicMaterial({ map: matcapTexture7 })
+ringMaterial.wireframe = true
 for (let i = 0; i < 40; i++) {
-    const donut = new THREE.Mesh(donutGeometry, donutMaterial)
-    donut.position.x = (Math.random() - 0.5) * 10
-    donut.position.y = (Math.random() - 0.5) * 10
-    donut.position.z = (Math.random() - 0.5) * 10
+	const ring = new THREE.Mesh(ringGeometry, ringMaterial)
+	ring.position.x = (Math.random() - 0.5) * 10
+	ring.position.y = (Math.random() - 0.5) * 10
+	ring.position.z = (Math.random() - 0.5) * 10
 
-    donut.rotation.x = Math.random() * Math.PI
-    donut.rotation.z = Math.random() * Math.PI
+	ring.rotation.x = Math.random() * Math.PI
+	ring.rotation.z = Math.random() * Math.PI
 
-    const randomScale = Math.random()
-    donut.scale.set(randomScale, randomScale, randomScale)
-    scene.add(donut)
-
+	const randomScale = Math.random()
+	ring.scale.set(randomScale, randomScale, randomScale)
+	scene.add(ring)
 }
-console.timeEnd('donuts');
 
-
+/**
+ * lights
+ */
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3)
+scene.add(ambientLight)
 
 /**
  * Sizes
@@ -180,6 +214,8 @@ const clock = new THREE.Clock()
 
 const tick = () => {
 	const elapsedTime = clock.getElapsedTime()
+
+	videoMesh.rotation.y = elapsedTime * Math.PI * 0.08
 
 	// Update controls
 	controls.update()
