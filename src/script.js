@@ -46,27 +46,32 @@ const matcapTexture6 = textureLoader.load('/textures/matcaps/6.png')
 const matcapTexture7 = textureLoader.load('/textures/matcaps/7.png')
 const matcapTexture8 = textureLoader.load('/textures/matcaps/8.png')
 
-var gltfLoader = new GLTFLoader()
-gltfLoader.load('/ecLogo/LEO.glb', async function (gltf) {
-	const ecLogo = gltf.scene 
-	// await renderer.compileAsync( tank, camera, scene );
-	ecLogo.scale.set(0.5, 0.5, 0.5)
-	ecLogo.position.y = 2.4
-	// tank.rotation.set(0, - Math.PI * 0.25, 0)
+const EpicClanTexture = textureLoader.load('/ecLogo/textures/ec.jpg')
+EpicClanTexture.minFilter = THREE.NearestFilter
+EpicClanTexture.magFilter = THREE.NearestFilter
+EpicClanTexture.generateMipmaps = false
 
-	scene.add(ecLogo)
-},
-function ( xhr ) {
+// var gltfLoader = new GLTFLoader()
+// gltfLoader.load('/ecLogo/LEO.glb', async function (gltf) {
+// 	const ecLogo = gltf.scene 
+// 	// await renderer.compileAsync( tank, camera, scene );
+// 	ecLogo.scale.set(0.5, 0.5, 0.5)
+// 	ecLogo.position.y = 2.4
+// 	// tank.rotation.set(0, - Math.PI * 0.25, 0)
 
-	console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+// 	scene.add(ecLogo)
+// },
+// function ( xhr ) {
 
-},
-// called when loading has errors
-function ( error ) {
+// 	console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
 
-	console.log( 'An error happened' );
+// },
+// // called when loading has errors
+// function ( error ) {
 
-})
+// 	console.log( 'An error happened' );
+
+// })
 
 
 // Environment map
@@ -82,12 +87,28 @@ function ( error ) {
  * Object
  */
 
-const cube = new THREE.Mesh(
-	new THREE.BoxGeometry(1, 1, 1),
-	new THREE.MeshBasicMaterial()
+// const backgroundGeometry = new THREE.PlaneGeometry(15, 15)
+// const backgroundMaterial = new THREE.MeshBasicMaterial({color: '#222'})
+// const backgroundMesh = new THREE.Mesh(
+// 	backgroundGeometry,
+// 	backgroundMaterial
+// )
+// backgroundMesh.position.z = -7
+// scene.add(backgroundMesh)
+
+
+const EpicClanLogoGeometry = new THREE.PlaneGeometry(20, 20)
+const EpicClanLogoMaterial = new THREE.MeshBasicMaterial({ side: THREE.TwoPassDoubleSide})
+EpicClanLogoMaterial.colorSpace = THREE.SRGBColorSpace
+EpicClanLogoMaterial.map = EpicClanTexture
+
+
+const EpicClanLogoMesh = new THREE.Mesh(
+	EpicClanLogoGeometry,
+	EpicClanLogoMaterial
 )
-cube.position.y = -1
-// scene.add(cube)
+EpicClanLogoMesh.position.z = -7
+scene.add(EpicClanLogoMesh)
 
 const videoEl = document.getElementById('video')
 // videoEl.play()
@@ -127,7 +148,7 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', (font) => {
 	EpicClanTextGeometry.center()
 	console.log(EpicClanTextGeometry.boundingBox)
 	const EpicClanTextMaterial = new THREE.MeshMatcapMaterial()
-	EpicClanTextMaterial.matcap = matcapTexture7
+	EpicClanTextMaterial.matcap = matcapTexture8
 	// EpicClanTextMaterial.wireframe = true
 	const EpicClanMesh = new THREE.Mesh(
 		EpicClanTextGeometry,
@@ -137,10 +158,10 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', (font) => {
 	scene.add(EpicClanMesh)
 })
 
-// Donut
+// 
 
 const ringGeometry = new THREE.RingGeometry(0.6, 0.8, 16)
-const ringMaterial = new THREE.MeshBasicMaterial({ map: matcapTexture7 })
+const ringMaterial = new THREE.MeshBasicMaterial({ map: matcapTexture4})
 ringMaterial.wireframe = true
 for (let i = 0; i < 40; i++) {
 	const ring = new THREE.Mesh(ringGeometry, ringMaterial)
@@ -159,7 +180,7 @@ for (let i = 0; i < 40; i++) {
 /**
  * lights
  */
-const ambientLight = new THREE.AmbientLight(0xff0000, 0.9)
+const ambientLight = new THREE.AmbientLight(0xff0000, 0.2)
 scene.add(ambientLight)
 
 const directionalLight = new THREE.DirectionalLight(0x0000ff, 1)
