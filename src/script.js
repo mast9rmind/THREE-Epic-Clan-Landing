@@ -64,10 +64,10 @@ videoTexture.colorSpace = THREE.SRGBColorSpace;
 
 const parameters = { color: 0xffffff, map: videoTexture, side: THREE.DoubleSide };
 const videoMaterial = new THREE.MeshBasicMaterial(parameters);
-const videoGeometry = new THREE.PlaneGeometry(3, 1)
+const videoGeometry = new THREE.BoxGeometry(2, 1, 2)
 
 const videoMesh = new THREE.Mesh(videoGeometry, videoMaterial)
-videoMesh.position.y = 1
+videoMesh.position.y = 1.3
 scene.add(videoMesh)
 
 
