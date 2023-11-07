@@ -1,21 +1,25 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls.js';
 import GUI from 'lil-gui'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader'
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import { Sky } from 'three/addons/objects/Sky.js'
 import gsap from 'gsap'
 
 /**
  * Declarations
  */
+let sky, renderer, tank, camera
 
 /**
  * Base
  */
 // Debug
 const gui = new GUI()
+gui.hide()
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -26,7 +30,6 @@ const scene = new THREE.Scene()
 // Axes Helper
 const axesHelper = new THREE.AxesHelper()
 // scene.add(axesHelper)
-
 
 /**
  * Textures
@@ -51,57 +54,54 @@ EpicClanTexture.minFilter = THREE.NearestFilter
 EpicClanTexture.magFilter = THREE.NearestFilter
 EpicClanTexture.generateMipmaps = false
 
-// var gltfLoader = new GLTFLoader()
-// gltfLoader.load('/ecLogo/LEO.glb', async function (gltf) {
-// 	const ecLogo = gltf.scene 
-// 	// await renderer.compileAsync( tank, camera, scene );
-// 	ecLogo.scale.set(0.5, 0.5, 0.5)
-// 	ecLogo.position.y = 2.4
-// 	// tank.rotation.set(0, - Math.PI * 0.25, 0)
+var gltfLoader = new GLTFLoader()
+gltfLoader.load(
+	'/gltf/car.glb',
+	async function (gltf) {
+		tank = gltf.scene
+		tank.scale.set(0.5, 0.5, 0.5)
+		tank.position.z = -5
+		tank.position.y = -10
+		tank.rotateY( - Math.PI * 0.5)
+		tank.axisHelper
+		// tank.rotation.set(0, - Math.PI * 0.25, 0)
 
-// 	scene.add(ecLogo)
-// },
-// function ( xhr ) {
-
-// 	console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-
-// },
-// // called when loading has errors
-// function ( error ) {
-
-// 	console.log( 'An error happened' );
-
-// })
+		scene.add(tank)
+	},
+	function (xhr) {
+		console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+	},
+	// called when loading has errors
+	function (error) {
+		console.log('An error happened')
+	}
+)
 
 
-// Environment map
-// const rbgeLoader = new RGBELoader()
-// rbgeLoader.load('/textures/environmentMap/2k.hdr', (environmentMap) => {
-// 	environmentMap.mapping = THREE.EquirectangularReflectionMapping
-
-// 	scene.background = environmentMap
-// 	scene.environment = environmentMap
-// })
 
 /**
  * Object
- */
+*/
 
-// const backgroundGeometry = new THREE.PlaneGeometry(15, 15)
-// const backgroundMaterial = new THREE.MeshBasicMaterial({color: '#222'})
-// const backgroundMesh = new THREE.Mesh(
-// 	backgroundGeometry,
-// 	backgroundMaterial
-// )
-// backgroundMesh.position.z = -7
-// scene.add(backgroundMesh)
+// ground
+const groundGeometry = new THREE.PlaneGeometry(400, 400, 512, 512)
+const groundMaterial = new THREE.MeshBasicMaterial({
+	color: '#ddd8eb',
+	side: THREE.DoubleSide,
+	wireframe: true
+})
+const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial)
+groundMesh.position.set(0, -10, 0)
+groundMesh.rotateX(Math.PI * 0.5)
+scene.add(groundMesh)
 
 
 const EpicClanLogoGeometry = new THREE.PlaneGeometry(20, 20)
-const EpicClanLogoMaterial = new THREE.MeshBasicMaterial({ side: THREE.TwoPassDoubleSide})
+const EpicClanLogoMaterial = new THREE.MeshBasicMaterial({
+	side: THREE.TwoPassDoubleSide,
+})
 EpicClanLogoMaterial.colorSpace = THREE.SRGBColorSpace
 EpicClanLogoMaterial.map = EpicClanTexture
-
 
 const EpicClanLogoMesh = new THREE.Mesh(
 	EpicClanLogoGeometry,
@@ -158,10 +158,10 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', (font) => {
 	scene.add(EpicClanMesh)
 })
 
-// 
+//
 
 const ringGeometry = new THREE.RingGeometry(0.6, 0.8, 16)
-const ringMaterial = new THREE.MeshBasicMaterial({ map: matcapTexture4})
+const ringMaterial = new THREE.MeshBasicMaterial({ map: matcapTexture4 })
 ringMaterial.wireframe = true
 for (let i = 0; i < 40; i++) {
 	const ring = new THREE.Mesh(ringGeometry, ringMaterial)
@@ -180,11 +180,11 @@ for (let i = 0; i < 40; i++) {
 /**
  * lights
  */
-const ambientLight = new THREE.AmbientLight(0xff0000, 0.2)
+const ambientLight = new THREE.AmbientLight(0xff0000, 0.1)
 scene.add(ambientLight)
 
-const directionalLight = new THREE.DirectionalLight(0x0000ff, 1)
-directionalLight.position.y = 10
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
+directionalLight.position.set(4, 4, 10)
 scene.add(directionalLight)
 
 /**
@@ -213,7 +213,7 @@ window.addEventListener('resize', () => {
  * Camera
  */
 // Base camera
-const camera = new THREE.PerspectiveCamera(
+camera = new THREE.PerspectiveCamera(
 	75,
 	sizes.width / sizes.height,
 	0.1,
@@ -223,7 +223,6 @@ camera.position.x = 1
 camera.position.y = 1
 camera.position.z = 20
 scene.add(camera)
-
 
 /**
  * Audios
@@ -240,18 +239,80 @@ scene.add(camera)
 
 // videoMesh.add(sound1)
 
+function initSky() {
+	// Add Sky
+	sky = new Sky()
+	sky.scale.setScalar(450000)
+	scene.add(sky)
+
+	let sun = new THREE.Vector3()
+
+	/// GUI
+
+	const effectController = {
+		turbidity: 10,
+		rayleigh: 3,
+		mieCoefficient: 0.005,
+		mieDirectionalG: 0.7,
+		elevation: 2,
+		azimuth: 180,
+		exposure: renderer.toneMappingExposure,
+	}
+
+	function guiChanged() {
+		const uniforms = sky.material.uniforms
+		uniforms['turbidity'].value = effectController.turbidity
+		uniforms['rayleigh'].value = effectController.rayleigh
+		uniforms['mieCoefficient'].value = effectController.mieCoefficient
+		uniforms['mieDirectionalG'].value = effectController.mieDirectionalG
+
+		const phi = THREE.MathUtils.degToRad(90 - effectController.elevation)
+		const theta = THREE.MathUtils.degToRad(effectController.azimuth)
+
+		sun.setFromSphericalCoords(1, phi, theta)
+
+		uniforms['sunPosition'].value.copy(sun)
+
+		renderer.toneMappingExposure = effectController.exposure
+		renderer.render(scene, camera)
+	}
+
+	gui.add(effectController, 'turbidity', 0.0, 20.0, 0.1).onChange(guiChanged)
+	gui.add(effectController, 'rayleigh', 0.0, 4, 0.001).onChange(guiChanged)
+	gui
+		.add(effectController, 'mieCoefficient', 0.0, 0.1, 0.001)
+		.onChange(guiChanged)
+	gui
+		.add(effectController, 'mieDirectionalG', 0.0, 1, 0.001)
+		.onChange(guiChanged)
+	gui.add(effectController, 'elevation', 0, 90, 0.1).onChange(guiChanged)
+	gui.add(effectController, 'azimuth', -180, 180, 0.1).onChange(guiChanged)
+	gui.add(effectController, 'exposure', 0, 1, 0.0001).onChange(guiChanged)
+
+	guiChanged()
+}
+
 // Controls
 const controls = new OrbitControls(camera, canvas)
+controls.maxDistance = 12;
+controls.maxPolarAngle = THREE.MathUtils.degToRad(90);
+controls.target.set( 0, 0.5, 0 );
 controls.enableDamping = true
 
 /**
  * Renderer
  */
-const renderer = new THREE.WebGLRenderer({
+renderer = new THREE.WebGLRenderer({
 	canvas: canvas,
+	antialias: true
 })
 renderer.setSize(sizes.width, sizes.height)
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.85;
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+// init sky after the rendere is defined
+initSky()
 
 /**
  * Animate
@@ -263,7 +324,6 @@ const tick = () => {
 
 	videoMesh.rotation.y = elapsedTime * Math.PI * 0.08
 
-
 	// Update controls
 	controls.update()
 
@@ -274,15 +334,97 @@ const tick = () => {
 	window.requestAnimationFrame(tick)
 }
 
-
-// Event listeners
+/**
+ * Event listeners
+ */
 const startButton = document.getElementById('startButton')
 const overlay = document.getElementById('overlay')
 startButton.addEventListener('click', () => {
-	gsap.to(camera.position, {z: 5, x: 3,  duration: 6})
+	gsap.to(camera.position, { z: 5, x: 3, duration: 6 })
 	console.log('play')
-	overlay.remove();
+	overlay.remove()
 	videoEl.play()
 })
+
+// toggle controls
+document.addEventListener('keypress', (keyEvent) => {
+	console.log(keyEvent.key)
+	if (keyEvent.key === 'c') {
+		gui.show(gui._hidden)
+	}
+})
+
+// toggle fullscreen
+document.addEventListener('keypress', (keyEvent) => {
+	function toggleFullScreen() {
+		if (
+			!document.fullscreenElement && // alternative standard method
+			!document.mozFullScreenElement &&
+			!document.webkitFullscreenElement
+		) {
+			// current working methods
+			if (document.documentElement.requestFullscreen) {
+				document.documentElement.requestFullscreen()
+			} else if (document.documentElement.mozRequestFullScreen) {
+				document.documentElement.mozRequestFullScreen()
+			} else if (document.documentElement.webkitRequestFullscreen) {
+				document.documentElement.webkitRequestFullscreen(
+					Element.ALLOW_KEYBOARD_INPUT
+				)
+			}
+		} else {
+			if (document.cancelFullScreen) {
+				document.cancelFullScreen()
+			} else if (document.mozCancelFullScreen) {
+				document.mozCancelFullScreen()
+			} else if (document.webkitCancelFullScreen) {
+				document.webkitCancelFullScreen()
+			}
+		}
+	}
+	
+	
+	if (keyEvent.key === 'f') {
+		toggleFullScreen()
+		
+	}
+})
+
+
+// tank movement
+
+
+
+// movement - please calibrate these values
+var xSpeed = 0.1;
+var ySpeed = 0.1;
+
+var angleX = 0.1;
+const carVector = new THREE.Vector3(10, 0, 0)
+
+document.addEventListener("keydown", onDocumentKeyDown, false);
+function onDocumentKeyDown(event) {
+	console.log(event.which)
+    var keyCode = event.which;
+    if (keyCode == 87) {
+			tank.translateX (xSpeed)
+    } else if (keyCode == 83) {
+			tank.translateX (-xSpeed)
+    } else if (keyCode == 65) {
+			tank.rotation.set(0, angleX += 0.1, 0)
+    } else if (keyCode == 68) {
+			tank.rotation.set(0, angleX -= 0.1 , 0)
+
+			
+    } else if (keyCode == 32) {
+        tank.position.set(0, 0, 0);
+	}
+	render()
+};
+
+
+function render() {
+	renderer.render(scene, camera);
+}
 
 tick()
