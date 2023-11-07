@@ -85,7 +85,7 @@ cube.position.y = -1
 // scene.add(cube)
 
 const video = document.getElementById('video')
-setTimeout(() => video.play(), 1000)
+video.play()
 let videoTexture = new THREE.VideoTexture(video)
 videoTexture.colorSpace = THREE.SRGBColorSpace
 
