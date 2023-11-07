@@ -66,13 +66,13 @@ function ( error ) {
  */
 
 // Environment map
-const rbgeLoader = new RGBELoader()
-rbgeLoader.load('/textures/environmentMap/2k.hdr', (environmentMap) => {
-	environmentMap.mapping = THREE.EquirectangularReflectionMapping
+// const rbgeLoader = new RGBELoader()
+// rbgeLoader.load('/textures/environmentMap/2k.hdr', (environmentMap) => {
+// 	environmentMap.mapping = THREE.EquirectangularReflectionMapping
 
-	scene.background = environmentMap
-	scene.environment = environmentMap
-})
+// 	scene.background = environmentMap
+// 	scene.environment = environmentMap
+// })
 
 /**
  * Object
