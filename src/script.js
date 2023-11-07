@@ -5,6 +5,7 @@ import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import gsap from 'gsap'
 
 /**
  * Declarations
@@ -45,12 +46,15 @@ const matcapTexture6 = textureLoader.load('/textures/matcaps/6.png')
 const matcapTexture7 = textureLoader.load('/textures/matcaps/7.png')
 const matcapTexture8 = textureLoader.load('/textures/matcaps/8.png')
 
-/* var gltfLoader = new GLTFLoader()
-gltfLoader.load('/gltf/car.glb', function (gltf) {
-	tank = gltf.scene 
-	tank.scale.set(2, 2, 2)
-	tank.position.y = -4
-	scene.add(tank)
+var gltfLoader = new GLTFLoader()
+gltfLoader.load('/ecLogo/LEO.glb', async function (gltf) {
+	const ecLogo = gltf.scene 
+	// await renderer.compileAsync( tank, camera, scene );
+	ecLogo.scale.set(0.5, 0.5, 0.5)
+	ecLogo.position.y = 2.4
+	// tank.rotation.set(0, - Math.PI * 0.25, 0)
+
+	scene.add(ecLogo)
 },
 function ( xhr ) {
 
@@ -63,7 +67,7 @@ function ( error ) {
 	console.log( 'An error happened' );
 
 })
- */
+
 
 // Environment map
 // const rbgeLoader = new RGBELoader()
@@ -155,8 +159,12 @@ for (let i = 0; i < 40; i++) {
 /**
  * lights
  */
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.3)
+const ambientLight = new THREE.AmbientLight(0xff0000, 0.9)
 scene.add(ambientLight)
+
+const directionalLight = new THREE.DirectionalLight(0x0000ff, 1)
+directionalLight.position.y = 10
+scene.add(directionalLight)
 
 /**
  * Sizes
@@ -192,7 +200,7 @@ const camera = new THREE.PerspectiveCamera(
 )
 camera.position.x = 1
 camera.position.y = 1
-camera.position.z = 2
+camera.position.z = 20
 scene.add(camera)
 
 
@@ -234,6 +242,7 @@ const tick = () => {
 
 	videoMesh.rotation.y = elapsedTime * Math.PI * 0.08
 
+
 	// Update controls
 	controls.update()
 
@@ -249,6 +258,7 @@ const tick = () => {
 const startButton = document.getElementById('startButton')
 const overlay = document.getElementById('overlay')
 startButton.addEventListener('click', () => {
+	gsap.to(camera.position, {z: 5, x: 3,  duration: 6})
 	console.log('play')
 	overlay.remove();
 	videoEl.play()
