@@ -9,6 +9,12 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { Sky } from 'three/addons/objects/Sky.js'
 import gsap from 'gsap'
 
+const FUTURE_UPDATES = `
+Future updates:
+1. multiplayer game at the ground
+2. texture for ground
+3. change ec and the shapes texture`
+
 /**
  * Declarations
  */
@@ -132,7 +138,7 @@ scene.add(videoMesh)
  */
 const fontLoader = new FontLoader()
 fontLoader.load('/fonts/helvetiker_regular.typeface.json', (font) => {
-	const EpicClanTextGeometry = new TextGeometry('Epic Clan', {
+	const epicClanTextGeometry = new TextGeometry('Epic Clan', {
 		font: font,
 		size: 0.9,
 		height: 0.2,
@@ -144,18 +150,39 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', (font) => {
 		bevelSegments: 4,
 	})
 	// Make the box bounding for optimizing rendering
-	EpicClanTextGeometry.computeBoundingBox()
-	EpicClanTextGeometry.center()
-	console.log(EpicClanTextGeometry.boundingBox)
-	const EpicClanTextMaterial = new THREE.MeshMatcapMaterial()
-	EpicClanTextMaterial.matcap = matcapTexture8
+	epicClanTextGeometry.computeBoundingBox()
+	epicClanTextGeometry.center()
+	console.log(epicClanTextGeometry.boundingBox)
+	const epicClanTextMaterial = new THREE.MeshMatcapMaterial()
+	epicClanTextMaterial.matcap = matcapTexture8
 	// EpicClanTextMaterial.wireframe = true
-	const EpicClanMesh = new THREE.Mesh(
-		EpicClanTextGeometry,
-		EpicClanTextMaterial
+	const epicClanMesh = new THREE.Mesh(
+		epicClanTextGeometry,
+		epicClanTextMaterial
 	)
-	EpicClanMesh.position.y = 1
-	scene.add(EpicClanMesh)
+	epicClanMesh.position.y = 1
+	scene.add(epicClanMesh)
+
+	const plansGeometry = new TextGeometry(FUTURE_UPDATES, {
+		font: font,
+		size: 0.9,
+		height: 0.2,
+		curvesSegments: 5,
+		bevelEnabled: true,
+		bevelThickness: 0.03,
+		bevelSize: 0.02,
+		bevelOffset: 0,
+		bevelSegments: 4,
+	})
+	const plansMaterial = new THREE.MeshMatcapMaterial()
+	plansMaterial.matcap = matcapTexture3
+	const plansMesh = new THREE.Mesh(
+		plansGeometry,
+		plansMaterial
+	)
+	plansMesh.position.y = 19
+	plansMesh.position.z = -10
+	scene.add(plansMesh)
 })
 
 //
@@ -294,7 +321,7 @@ function initSky() {
 
 // Controls
 const controls = new OrbitControls(camera, canvas)
-controls.maxDistance = 12;
+controls.maxDistance = 20;
 controls.maxPolarAngle = THREE.MathUtils.degToRad(90);
 controls.target.set( 0, 0.5, 0 );
 controls.enableDamping = true
