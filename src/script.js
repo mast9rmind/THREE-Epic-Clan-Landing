@@ -251,8 +251,8 @@ function initSky() {
 
 	const effectController = {
 		turbidity: 10,
-		rayleigh: 3,
-		mieCoefficient: 0.005,
+		rayleigh: 0,
+		mieCoefficient: 0.001,
 		mieDirectionalG: 0.7,
 		elevation: 2,
 		azimuth: 180,
