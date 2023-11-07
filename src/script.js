@@ -26,6 +26,7 @@ const scene = new THREE.Scene()
 const axesHelper = new THREE.AxesHelper()
 // scene.add(axesHelper)
 
+
 /**
  * Textures
  */
@@ -84,9 +85,9 @@ const cube = new THREE.Mesh(
 cube.position.y = -1
 // scene.add(cube)
 
-const video = document.getElementById('video')
-video.play()
-let videoTexture = new THREE.VideoTexture(video)
+const videoEl = document.getElementById('video')
+// videoEl.play()
+let videoTexture = new THREE.VideoTexture(videoEl)
 videoTexture.colorSpace = THREE.SRGBColorSpace
 
 const parameters = {
@@ -194,6 +195,22 @@ camera.position.y = 1
 camera.position.z = 2
 scene.add(camera)
 
+
+/**
+ * Audios
+ */
+
+// create an AudioListener and add it to the camera
+// const listener = new THREE.AudioListener();
+// camera.add( listener );
+
+// const sound1 = new THREE.PositionalAudio(listener)
+// const soundEl = document.getElementById('sound')
+// sound1.setMediaElementSource(soundEl)
+// sound1.setRefDistance(20)
+
+// videoMesh.add(sound1)
+
 // Controls
 const controls = new OrbitControls(camera, canvas)
 controls.enableDamping = true
@@ -226,5 +243,15 @@ const tick = () => {
 	// Call tick again on the next frame
 	window.requestAnimationFrame(tick)
 }
+
+
+// Event listeners
+const startButton = document.getElementById('startButton')
+const overlay = document.getElementById('overlay')
+startButton.addEventListener('click', () => {
+	console.log('play')
+	overlay.remove();
+	videoEl.play()
+})
 
 tick()

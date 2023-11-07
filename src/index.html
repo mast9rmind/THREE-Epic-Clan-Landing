@@ -10,11 +10,18 @@
 </head>
 
 <body>
+    <div id="overlay" class='overlay'>
+        <button id="startButton" class='button center'>Play</button>
+    </div>
     <canvas class="webgl"></canvas>
-    <video id='video' width="320" height="240" controls autoplay muted loop style='display: none;'>
+    <video id='video' width="320" height="240" controls loop style='display: none;'>
         <source src="/videos/ec.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
+
+    <!-- <audio id="sound" preload="auto" style="display: none">
+        <source src="/sounds/viking-feast.mp3" type="audio/ogg" type="audio/mpeg">
+    </audio> -->
 
     <script defer type="module" src="./script.js"></script>
 </body>
