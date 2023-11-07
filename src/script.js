@@ -180,11 +180,11 @@ for (let i = 0; i < 40; i++) {
 /**
  * lights
  */
-const ambientLight = new THREE.AmbientLight(0xff0000, 0.1)
+const ambientLight = new THREE.AmbientLight(0xff0000, 0.4)
 scene.add(ambientLight)
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
-directionalLight.position.set(4, 4, 10)
+directionalLight.position.set(4, 4, 3)
 scene.add(directionalLight)
 
 /**
@@ -399,7 +399,7 @@ document.addEventListener('keypress', (keyEvent) => {
 var xSpeed = 0.1;
 var ySpeed = 0.1;
 
-var angleX = 0.1;
+var angleX = - Math.PI * 0.5;
 const carVector = new THREE.Vector3(10, 0, 0)
 
 document.addEventListener("keydown", onDocumentKeyDown, false);
