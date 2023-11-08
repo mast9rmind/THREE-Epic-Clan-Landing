@@ -166,7 +166,7 @@ function initSky() {
 const initGround = () => {
 	const groundGeometry = new THREE.PlaneGeometry(400, 400, 512, 512)
 	const groundMaterial = new THREE.MeshBasicMaterial({
-		color: '#ddd8eb',
+		color: '#aaa8eb',
 		side: THREE.DoubleSide,
 	})
 	const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial)
