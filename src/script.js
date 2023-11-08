@@ -19,7 +19,11 @@ Future updates:
 /**
  * SECTION - Declarations
  */
+
 let sky, renderer, tank, camera, videoEl, controls, soundEl
+
+// objects
+let epicClanPlaneMesh, epicClanTextMesh
 
 /**
  * SECTION - Base
@@ -44,6 +48,12 @@ const axesHelper = new THREE.AxesHelper()
  * SECTION - Textures
  */
 const textureLoader = new THREE.TextureLoader()
+const sphereShadowTexture = textureLoader.load('/textures/shadows/sphereShadow.jpg')
+sphereShadowTexture.colorSpace = THREE.SRGBColorSpace
+sphereShadowTexture.generateMipmaps = false
+sphereShadowTexture.minFilter = THREE.NearestFilter
+sphereShadowTexture.magFilter = THREE.NearestFilter
+
 const matcapTexture1 = textureLoader.load('/textures/matcaps/1.png')
 matcapTexture1.colorSpace = THREE.SRGBColorSpace
 matcapTexture1.generateMipmaps = false
@@ -185,9 +195,9 @@ const initEpicClanLogo = () => {
 
 const initRings = () => {
 	const ringGeometry = new THREE.RingGeometry(1, 1.2, 16)
-	const ringMaterial = new THREE.MeshBasicMaterial({ map: matcapTexture8 })
+	const ringMaterial = new THREE.MeshBasicMaterial({ map: matcapTexture2 })
 	ringMaterial.wireframe = true
-	for (let i = 0; i < 40; i++) {
+	for (let i = 0; i < 16 ; i++) {
 		const ring = new THREE.Mesh(ringGeometry, ringMaterial)
 		ring.position.x = (Math.random() - 0.5) * 10
 		ring.position.y = (Math.random() + -0.5) * 10
@@ -203,7 +213,7 @@ const initRings = () => {
 }
 
 // slab
-const initSlab = () => {
+const initEpicClanSurface = () => {
 	const format = renderer.capabilities.isWebGL2
 		? THREE.RedFormat
 		: THREE.LuminanceFormat
@@ -214,23 +224,68 @@ const initSlab = () => {
 		colors[c] = (c / colors.length) * 256
 	}
 
-	const epicClanSlabGeometry = new THREE.BoxGeometry(9, 1, 9, 32, 8, 32)
+	const epicClanSlabGeometry = new THREE.PlaneGeometry(9, 9)
 	const diffuseColor = new THREE.Color('#bbbbff')
 	const gradientMap = new THREE.DataTexture(colors, colors.length, 1, format)
 	gradientMap.needsUpdate = true
-	const epicClanSlabMaterial = new THREE.MeshPhongMaterial({
+	const epicClanPlaneMaterial = new THREE.MeshPhongMaterial({
 		color: diffuseColor,
 		gradientMap: gradientMap,
 	})
-	epicClanSlabMaterial.roughness = 0.9
-	epicClanSlabMaterial.metalness = 0.7
-	const epicClanSlabMesh = new THREE.Mesh()
-	epicClanSlabMesh.receiveShadow = true
-	epicClanSlabMesh.geometry = epicClanSlabGeometry
-	epicClanSlabMesh.material = epicClanSlabMaterial
-	epicClanSlabMesh.position.y = -3
-	epicClanSlabMesh.position.z = -1.7
-	scene.add(epicClanSlabMesh)
+	epicClanPlaneMaterial.roughness = 0.9
+	epicClanPlaneMaterial.metalness = 0.7
+	epicClanPlaneMaterial.side = THREE.DoubleSide
+	epicClanPlaneMesh = new THREE.Mesh(
+		epicClanSlabGeometry,
+		epicClanPlaneMaterial
+	)
+	epicClanPlaneMesh.receiveShadow = true
+	epicClanPlaneMesh.rotation.x = - Math.PI * 0.5
+	epicClanPlaneMesh.position.y = -3
+	epicClanPlaneMesh.position.z = -4
+	scene.add(epicClanPlaneMesh)
+}
+
+const initSphere = () => {
+	const sphereRight = new THREE.Mesh(
+		new THREE.BoxGeometry(1, 1, 1),
+		new THREE.MeshPhongMaterial({ color: 0xbbbbff}),
+	)
+	sphereRight.position.set(4, -2.5, 0)
+	scene.add(sphereRight)
+
+	const sphereLeft = new THREE.Mesh(
+		new THREE.BoxGeometry(1, 1, 1),
+		new THREE.MeshPhongMaterial({ color: 0xbbbbff}),
+	)
+	sphereLeft.position.set(-4, -2.5, 0)
+	scene.add(sphereLeft)
+
+	const sphereRightShadow = new THREE.Mesh(
+		new THREE.PlaneGeometry(1.5, 1.5),
+		new THREE.MeshBasicMaterial({
+			color: 0x000000,
+			transparent: true,
+			alphaMap: sphereShadowTexture
+		})
+	)
+	sphereRightShadow.rotation.x = - Math.PI * 0.5
+	sphereRightShadow.position.x = sphereRight.position.x
+	sphereRightShadow.position.y = epicClanPlaneMesh.position.y + 0.01
+	scene.add(sphereRightShadow)
+
+	const sphereLeftShadow = new THREE.Mesh(
+		new THREE.PlaneGeometry(1.5, 1.5),
+		new THREE.MeshBasicMaterial({
+			color: 0x000000,
+			transparent: true,
+			alphaMap: sphereShadowTexture
+		})
+	)
+	sphereLeftShadow.rotation.x = - Math.PI * 0.5
+	sphereLeftShadow.position.x = sphereLeft.position.x
+	sphereLeftShadow.position.y = epicClanPlaneMesh.position.y + 0.01
+	scene.add(sphereLeftShadow)
 }
 
 const initVideo = () => {
@@ -248,7 +303,7 @@ const initVideo = () => {
 	const videoGeometry = new THREE.BoxGeometry(2, 1, 2)
 
 	const videoMesh = new THREE.Mesh(videoGeometry, videoMaterial)
-	videoMesh.position.y = 1
+	videoMesh.position.y = 5
 	videoMesh.position.z = -4
 	scene.add(videoMesh)
 }
@@ -277,15 +332,15 @@ const initTexts = () => {
 		const epicClanTextMaterial = new THREE.MeshStandardMaterial()
 		epicClanTextMaterial.matcap = matcapTexture3
 		// EpicClanTextMaterial.wireframe = true
-		const epicClanMesh = new THREE.Mesh(
+		epicClanTextMesh = new THREE.Mesh(
 			epicClanTextGeometry,
 			epicClanTextMaterial
 		)
-		epicClanMesh.castShadow = true
-		epicClanMesh.receiveShadow = true
-		epicClanMesh.position.y = -1
-		epicClanMesh.position.z = -4
-		scene.add(epicClanMesh)
+		epicClanTextMesh.castShadow = true
+		epicClanTextMesh.receiveShadow = true
+		epicClanTextMesh.position.y = 0
+		epicClanTextMesh.position.z = -4
+		scene.add(epicClanTextMesh)
 
 		const plansGeometry = new TextGeometry(FUTURE_UPDATES, {
 			font: font,
@@ -329,12 +384,12 @@ const initLights = () => {
 	scene.add(directionalLight.target)
 	scene.add(directionalLight)
 
-	const pointLight = new THREE.PointLight(0xff9000, 1.5)
-	pointLight.shadow.camera.near = 1
-	pointLight.shadow.camera.far = 4
-	pointLight.castShadow = true
-	pointLight.position.set(0, 1, 2)
-	scene.add(pointLight)
+	// const pointLight = new THREE.PointLight(0xff9000, 1.5)
+	// pointLight.shadow.camera.near = 1
+	// pointLight.shadow.camera.far = 4
+	// pointLight.castShadow = true
+	// pointLight.position.set(0, 1, 2)
+	// scene.add(pointLight)
 
 	// HemisphereLight
 	// const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x0044ff, 0.9)
@@ -386,18 +441,18 @@ const initLights = () => {
 	scene.add(directionalLightHelperCamera)
 	scene.add(directionalLightHelper)
 
-	const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.7)
-	pointLightHelper.visible = false
-	helpersFolder.add(pointLightHelper, 'visible').name('point light helper')
-	const pointLightCameraHelper = new THREE.CameraHelper(
-		pointLight.shadow.camera
-	)
-	pointLightCameraHelper.visible = false
-	helpersFolder
-		.add(pointLightCameraHelper, 'visible')
-		.name('point light camera helper')
-	scene.add(pointLightCameraHelper)
-	scene.add(pointLightHelper)
+	// const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.7)
+	// pointLightHelper.visible = false
+	// helpersFolder.add(pointLightHelper, 'visible').name('point light helper')
+	// const pointLightCameraHelper = new THREE.CameraHelper(
+	// 	pointLight.shadow.camera
+	// )
+	// pointLightCameraHelper.visible = false
+	// helpersFolder
+	// 	.add(pointLightCameraHelper, 'visible')
+	// 	.name('point light camera helper')
+	// scene.add(pointLightCameraHelper)
+	// scene.add(pointLightHelper)
 
 	const spotLightHelper = new THREE.SpotLightHelper(spotLight)
 	spotLightHelper.visible = false
@@ -504,6 +559,10 @@ const tick = () => {
 	// Update controls
 	controls.update()
 
+	//ss
+	setTimeout(() => epicClanTextMesh.position.y = Math.sin(elapsedTime) * 0.3, 1000)
+	
+
 	// Render
 	renderer.render(scene, camera)
 
@@ -596,8 +655,9 @@ function render() {
 initEpicClanLogo()
 initGround()
 initRings()
-initSlab()
+initEpicClanSurface()
 initSky()
+initSphere()
 
 // text
 initTexts()
