@@ -20,7 +20,7 @@ Future updates:
  * SECTION - Declarations
  */
 
-let sky, renderer, tank, camera, videoEl, controls, soundEl
+let sky, renderer, tank, camera, videoEl, controls, soundEl, count, particlesGeometry
 
 // objects
 let epicClanPlaneMesh, epicClanTextMesh
@@ -72,6 +72,8 @@ const EpicClanTexture = textureLoader.load('/ecLogo/textures/ec.jpg')
 EpicClanTexture.minFilter = THREE.NearestFilter
 EpicClanTexture.magFilter = THREE.NearestFilter
 EpicClanTexture.generateMipmaps = false
+
+const particleTexture = textureLoader.load('/textures/particles/11.png')
 
 var gltfLoader = new GLTFLoader()
 gltfLoader.load(
@@ -176,21 +178,59 @@ const initGround = () => {
 }
 
 const initEpicClanLogo = () => {
-	const EpicClanLogoGeometry = new THREE.PlaneGeometry(20, 20)
-	const EpicClanLogoMaterial = new THREE.MeshPhongMaterial({
+	const epicClanWallGeometry = new THREE.PlaneGeometry(20, 20)
+	const epicClanWallMaterial = new THREE.MeshPhongMaterial({
 		side: THREE.DoubleSide,
 	})
-	EpicClanLogoMaterial.colorSpace = THREE.SRGBColorSpace
-	EpicClanLogoMaterial.map = EpicClanTexture
+	epicClanWallMaterial.colorSpace = THREE.SRGBColorSpace
+	epicClanWallMaterial.map = EpicClanTexture
 
-	const EpicClanLogoMesh = new THREE.Mesh(
-		EpicClanLogoGeometry,
-		EpicClanLogoMaterial
+	const epicClanWallMesh = new THREE.Mesh(
+		epicClanWallGeometry,
+		epicClanWallMaterial
 	)
-	EpicClanLogoMesh.castShadow = true
-	EpicClanLogoMesh.receiveShadow = true
-	EpicClanLogoMesh.position.z = -7
-	scene.add(EpicClanLogoMesh)
+	epicClanWallMesh.castShadow = true
+	epicClanWallMesh.receiveShadow = true
+	epicClanWallMesh.position.z = -7
+	scene.add(epicClanWallMesh)
+}
+
+const initParticles = () => {
+	/**
+	 * Particles
+	 */
+	particlesGeometry = new THREE.BufferGeometry(2, 32, 32)
+	const particlesMaterial = new THREE.PointsMaterial({
+		sizeAttenuation: true,
+		size: 0.2,
+		transparent: true,
+		alphaMap: particleTexture,
+		// alphaTest: 0.001,
+		// depthTest: false,
+		depthWrite: false,
+		blending: THREE.AdditiveBlending,
+		vertexColors: true,
+	})
+	particlesMaterial.color = new THREE.Color('#FFFF00')
+	count = 2000
+
+	const positions = new Float32Array(count * 3)
+	const colors = new Float32Array(count * 3)
+
+	for (let i = 0; i < count * 3; i++) {
+		positions[i] = (Math.random() - 0.5) * 20
+		colors[i] = Math.random()
+	}
+
+	particlesGeometry.setAttribute(
+		'position',
+		new THREE.BufferAttribute(positions, 3)
+	)
+	particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
+
+	// Points
+	const particles = new THREE.Points(particlesGeometry, particlesMaterial)
+	scene.add(particles)
 }
 
 const initRings = () => {
@@ -554,7 +594,22 @@ initRenderer()
 const clock = new THREE.Clock()
 
 const tick = () => {
+
 	const elapsedTime = clock.getElapsedTime()
+
+    // Update particles
+    // particles.rotation.y = elapsedTime * 0.2
+    // for (let i = 0; i < count; i++) {
+        // const i3 = i * 3
+
+        // let x = particlesGeometry.attributes.position.array[i3] =  Math.sin(elapsedTime)
+        // let y = particlesGeometry.attributes.position.array[i3 + 1] = Math.sin(elapsedTime)
+        // let z = particlesGeometry.attributes.position.array[i3 + 2] = Math.sin(elapsedTime)
+
+        
+    // }
+    // particlesGeometry.attributes.position.needsUpdate = true
+
 
 	// Update controls
 	controls.update()
@@ -653,11 +708,12 @@ function render() {
 /** SECTION - Init */
 // object
 initEpicClanLogo()
-initGround()
+// initGround()
 initRings()
 initEpicClanSurface()
-initSky()
+// initSky()
 initSphere()
+initParticles()
 
 // text
 initTexts()
